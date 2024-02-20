@@ -62,6 +62,7 @@ KERNEL=$(uname -r); KERNEL=${KERNEL%-pve}
 ```
 2. Proceed to clone the DKMS repository and adjust its configuration:
 ```bash
+cd ~
 git clone https://github.com/strongtz/i915-sriov-dkms.git
 cd ~/i915-sriov-dkms
 cp -a ~/i915-sriov-dkms/dkms.conf{,.bak}
