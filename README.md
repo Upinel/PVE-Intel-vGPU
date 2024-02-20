@@ -127,7 +127,7 @@ Now your host is prepared, and you can set up Windows 10/11 VMs with SR-IOV vGPU
 3. Upload both .iso image to your Proxmox storage, I use local -> ISO Images here
 4. Start the VM creation process. On the **General** tab enter the name of your VM. Click **Next**.
 5. On the **OS** tab select the Windows 11 ISO.  Change the Guest OS to **Microsoft Windows, 11/2022**. Tick the box for the VirtIO drivers, then select your Windows VirtIO ISO. Click **Next**. **Note:** The VirtIO drivers option is new to Proxmox 8.1. I added a Proxmox 8.0 step at the end to manually add a new CD drive and mount the VirtIO ISO.
-6. On the **System** page modify the settings to match EXACTLY as those shown below. If your local VM storage is named differently (e.g. NOT **local-lvm**, use that instead).
+6. On the **System** page modify the Machine Type to **Q35**, SCSI Controller to **VirtIO SCSI single**, BIOS to **OVMF (UEFI)**. If you are installing Windows 11, also enable TPM 2.0. If your local VM storage is named differently (e.g. NOT **local-lvm**, use that instead).
 7. On the **Disks** tab, modify the size as needed. I suggest a minimum of 64GB. Modify the **Cache** and **Discard** settings as shown. Only enable **Discard** if using SSD/NVMe storage (not a spinning disk).
 8. On the **CPU** tab, change the **Type** to **host**. Allocate however many cores you want. I chose 2.
 9.  On the **Memory** tab allocated as much memory as you want. I suggest 8GB or more. 
