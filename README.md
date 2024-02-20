@@ -125,12 +125,12 @@ Now your host is prepared, and you can set up Windows 10/11 VMs with SR-IOV vGPU
 1. Download the latest VirtIO Windows driver ISO from [here](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso). 
 2. Download the Windows 11 ISO from [here](https://www.microsoft.com/software-download/windows11). Use the **Download Windows 11 Disk Image (ISO) for x64 devices** option.
 3. Upload both .iso image to your Proxmox storage, I use local -> ISO Images here
-4. Start the VM creation process. On the **General** tab enter the name of your VM. Click **Next**.\
+4. Start the VM creation process. On the **General** tab enter the name of your VM. Click **Next**.
 5. On the **OS** tab select the Windows 11 ISO.  Change the Guest OS to **Microsoft Windows, 11/2022**. Tick the box for the VirtIO drivers, then select your Windows VirtIO ISO. Click **Next**. **Note:** The VirtIO drivers option is new to Proxmox 8.1. I added a Proxmox 8.0 step at the end to manually add a new CD drive and mount the VirtIO ISO.
 6. On the **System** page modify the settings to match EXACTLY as those shown below. If your local VM storage is named differently (e.g. NOT **local-lvm**, use that instead).
 7. On the **Disks** tab, modify the size as needed. I suggest a minimum of 64GB. Modify the **Cache** and **Discard** settings as shown. Only enable **Discard** if using SSD/NVMe storage (not a spinning disk).
 8. On the **CPU** tab, change the **Type** to **host**. Allocate however many cores you want. I chose 2.
-9.  On the **Memory **tab allocated as much memory as you want. I suggest 8GB or more. \
+9.  On the **Memory** tab allocated as much memory as you want. I suggest 8GB or more. 
 10.  On the **Network** tab change the model to **VirtIO**.
 11.  Review your VM configuration. Click **Finish**. **Note:** If you are on Proxmox 8.0, modify the hardware configuration again and add a CD/DVD drive and select the VirtIO ISO image. Do not start the VM. 
 
@@ -142,9 +142,9 @@ Now your host is prepared, and you can set up Windows 10/11 VMs with SR-IOV vGPU
 5.  Tick the box to accept the license agreement. Click **Next**.
 6.  Click on **Custom** install.
 7.  Click **Load driver**.
-8.  Click **OK**.\
+8.  Click **OK**.
 9.  Select the **w11** driver. Click **Next**.
-10.  **On Where do you want to install Windows** click **Next**.\
+10.  **On Where do you want to install Windows** click **Next**.
 11.  Sit back and wait for Windows 11 to install.
 
 ### Windows 11 Initial Configuration
@@ -171,19 +171,19 @@ wmic UserAccount set PasswordExpires=False
 ## Windows 11 vGPU Configuration
 1. Open a Proxmox console to the VM and login to Windows 11. In the search bar type **remote desktop**, then click on remote** desktop settings**.
 2. Enable **Remote Desktop**. Click **Confirm**.
-3. Open your favorite RDP client and login using the user name and credentials you setup. You should now see your Windows desktop and the Proxmox console window should show the lock screen.\
-4. Inside the Windows VM open your favorite browser and download the latest Intel “Recommended” graphics driver from [here](https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html). In my case I’m grabbing **31.0.101.4972**.\
-5. Shutdown the Windows VM. \
+3. Open your favorite RDP client and login using the user name and credentials you setup. You should now see your Windows desktop and the Proxmox console window should show the lock screen.
+4. Inside the Windows VM open your favorite browser and download the latest Intel “Recommended” graphics driver from [here](https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html). In my case I’m grabbing **31.0.101.4972**.
+5. Shutdown the Windows VM. 
 6. You can now unmount the Windows 11 and VirtIO ISOs.
 7. In the Proxmox console click on the Windows 11 VM in the left pane. Then click on **Hardware**. Click on the **Display** item in the right pane. Click **Edit**, then change it to **none**.
 **Note:** If in the next couple of steps the 7 GPU VFs aren’t listed, try rebooting your Proxmox host and see if they come back. Then try adding one to your Windows VM again.
-8. In the top of the right pane click on **Add**, then select **PCI Device**.\
+8. In the top of the right pane click on **Add**, then select **PCI Device**.
 9. Select **Raw Device**. Then review all of the PCI devices available. Select one of the sub-function (.1, .2, etc..) graphics controllers (i.e. ANY entry except the 00:02.0). Do **NOT** use the root “0” device, for ANYTHING. I chose **02.1**. Click** Add**. **Do NOT** tick the “All Functions” box. Tick the box next to **Primary GPU**. Click **Add**.
-10. Start the Windows 11 VM and wait a couple of minutes for it to boot and RDP to become active. Note, the Proxmox Windows console will NOT connect since we removed the virtual VGA device. You will see a **Failed to connect to server** message. You can now ONLY access Windows via RDP. \
+10. Start the Windows 11 VM and wait a couple of minutes for it to boot and RDP to become active. Note, the Proxmox Windows console will NOT connect since we removed the virtual VGA device. You will see a **Failed to connect to server** message. You can now ONLY access Windows via RDP. 
 11. RDP into the Windows 11 VM. Locate the Intel Graphics driver installer and run it. If all goes well, you will be presented with an **Installation complete!** screen. Reboot. If you run into issues with the Intel installer, skip down to my troubleshooting section below to see if any of those tips help. 
 
 ## Windows 11 vGPU Validation
-1. RDP into Windows and launch **Device Manager**. \
+1. RDP into Windows and launch **Device Manager**. 
 2. Expand **Display adapters** and verify there’s an Intel adapter in a healthy state (e.g. no error 43).
 3. Launch **Intel Arc Control**. Click on the **gear icon**, **System Info**, **Hardware**. Verify it shows **Intel Iris Xe**.
 4. Launch **Task Manager**, then watch a YouTube video. Verify the GPU is being used.
@@ -191,7 +191,7 @@ wmic UserAccount set PasswordExpires=False
 ## Appedixies
 ### Appedix 1 - Kernal lower than 6.1
 You can update the PVE kernel to 6.2 5.19 using these commands:
-1.  Disable enterprise repo.\
+1.  Disable enterprise repo:
 ```bash
 vi /etc/apt/sources.list
 ```
@@ -235,7 +235,7 @@ mokutil --import /var/lib/dkms/mok.pub
 
 Secure Boot MOK Configuration (Proxmox 8.1+)
 
-Select **Enroll MOK, Continue, Yes, *\<password>*, Reboot. **
+Select **Enroll MOK, Continue, Yes, <password>, Reboot. **
 
 **Back to the Guide where you left**
 
