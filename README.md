@@ -82,7 +82,6 @@ dkms status
 dkms install -m i915-sriov-dkms -v $KERNEL -k $(uname -r) --force -j 1
 dkms status
 ```
-5. 
 
 ### GRUB Bootloader Setup
 Backup and update the GRUB configuration:
