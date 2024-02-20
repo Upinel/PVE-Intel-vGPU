@@ -238,5 +238,5 @@ Select **Enroll MOK, Continue, Yes, *\<password>*, Reboot. **
 
 **Back to the Guide where you left**
 
-##Conclusion
+## Conclusion
 By completing this guide, you should be able to share your Intel Gen 12 iGPU across multiple VMs for enhanced video processing and virtualized graphical tasks within a Proxmox environment.
