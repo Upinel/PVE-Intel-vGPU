@@ -1,24 +1,24 @@
-**Intel Gen 12 vGPU (SR-IOV) on Proxmox**
+# Intel Gen 12 vGPU (SR-IOV) on Proxmox
 
 This guide is designed to help you virtualize the 12th-generation Intel integrated GPU (iGPU) and share it as a virtual GPU (vGPU) with hardware acceleration and video encoding/decoding capabilities across multiple VMs.
 
-**Introduction**
+### Introduction
 
 Although not suited for gaming due to the limited performance of Intel’s iGPU, especially when shared among multiple VMs, this setup excels at video decoding tasks like streaming YouTube and accelerating RDP sessions without burdening the CPU.
 
 Once you complete this setup, consider enhancing your RDP experience with my project [UpinelBetterRDP](https://github.com/Upinel/BetterRDP), which leverages vGPU capabilities.
 
-**Disclaimer**
+### Disclaimer
 
 This workaround is not officially supported by Proxmox. Use at your own risk.
 
-**Credits**
+### Credits
 
 The DKMS module by Strongz is instrumental in making this possible ([i915-sriov-dkms GitHub repository](https://github.com/strongtz/i915-sriov-dkms?ref=michaels-tinkerings)).  
 Additionally, Derek Seaman and Michael's blog post was an inspirational resource ([Derek Seaman’s Proxmox vGPU Guide](https://www.derekseaman.com/2023/11/proxmox-ve-8-1-windows-11-vgpu-vt-d-passthrough-with-intel-alder-lake.html) & [vGPU (SR-IOV) with Intel 12th Gen iGPU](https://www.michaelstinkerings.org/gpu-virtualization-with-intel-12th-gen-igpu-uhd-730/)).  
 This guide is tailored for Proxmox 8, aiming to streamline the installation process.
 
-**Environment**
+### Environment
 
 The environment used for this guide:
 
@@ -32,7 +32,7 @@ The environment used for this guide:
 
 • Graphics: Intel Iris Xe Graphics (80 Execution Units)
 
-**Prerequisites**
+### Prerequisites
 
 Before proceeding, ensure the following:
 
