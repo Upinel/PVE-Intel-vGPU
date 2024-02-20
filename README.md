@@ -235,7 +235,7 @@ mokutil --import /var/lib/dkms/mok.pub
 
 Secure Boot MOK Configuration (Proxmox 8.1+)
 
-Select **Enroll MOK, Continue, Yes, <password>, Reboot. **
+Select **Enroll MOK, Continue, Yes, <password>, Reboot.**
 
 **Back to the Guide where you left**
 
