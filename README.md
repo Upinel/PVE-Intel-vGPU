@@ -82,8 +82,6 @@ apt install sysfsutils -y
 lspci | grep VGA
 ```
 
-[![](https://www.derekseaman.com/wp-content/uploads/2023-06-25_15-49-51-1024x83.jpg)](https://www.derekseaman.com/wp-content/uploads/2023-06-25_15-49-51.jpg)
-
 3\. Run the following command and modify the PCIe bus number if needed. In this case I’m using **00:02.0**. To verify the file was modified, cat the file and ensure it was modified.
 
 ```bash
