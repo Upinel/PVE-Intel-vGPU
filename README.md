@@ -116,6 +116,8 @@ dmesg | grep i915
 Now your host is prepared, and you can set up Windows 10/11 VMs with SR-IOV vGPU support.
 
 ## Windows Installation
+I will write a simplier version of Windows Installation Guide soon. Stay Tune.
+
 ### Download Windows Images and Virtos Driver
 1. Download the latest VirtIO Windows driver ISO from [here](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso). 
 2. Download the Windows 11 ISO from [here](https://www.microsoft.com/software-download/windows11). Use the **Download Windows 11 Disk Image (ISO) for x64 devices** option.
@@ -200,17 +202,17 @@ deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
 # security updates
 deb http://security.debian.org bookworm-security main contrib
 ```
-2. Install 6.1 kernel (or 6.2).\
+2. Install 6.5 kernel.
 ```bas
-apt install pve-kernel-6.1
+apt install pve-kernel-6.5
 ```
-3.  Update apt and install 6.1 headers.\
+3.  Update apt and install headers.
 ```bash
 apt update && apt install pve-headers-$(uname -r)
 ```
 4. Update initramfs and reboot.\
 ```bash
-update-initramfs -u\
+update-initramfs -u
 reboot
 ```
 5. Check your kernel
