@@ -12,12 +12,6 @@ Once you complete this setup, consider enhancing your RDP experience with my pro
 
 This workaround is not officially supported by Proxmox. Use at your own risk.
 
-### Credits
-
-The DKMS module by Strongz is instrumental in making this possible ([i915-sriov-dkms GitHub repository](https://github.com/strongtz/i915-sriov-dkms?ref=michaels-tinkerings)).  
-Additionally, Derek Seaman and Michael's blog post was an inspirational resource ([Derek Seaman’s Proxmox vGPU Guide](https://www.derekseaman.com/2023/11/proxmox-ve-8-1-windows-11-vgpu-vt-d-passthrough-with-intel-alder-lake.html) & [vGPU (SR-IOV) with Intel 12th Gen iGPU](https://www.michaelstinkerings.org/gpu-virtualization-with-intel-12th-gen-igpu-uhd-730/)).  
-This guide is tailored for Proxmox 8, aiming to streamline the installation process.
-
 ### Environment
 
 The environment used for this guide:
@@ -242,6 +236,14 @@ Select **Enroll MOK, Continue, Yes, (password), Reboot.**
 
 ## Conclusion
 By completing this guide, you should be able to share your Intel Gen 12 iGPU across multiple VMs for enhanced video processing and virtualized graphical tasks within a Proxmox environment.
+
+
+### Credits
+
+The DKMS module by Strongz is instrumental in making this possible ([i915-sriov-dkms GitHub repository](https://github.com/strongtz/i915-sriov-dkms?ref=michaels-tinkerings)).  
+Additionally, Derek Seaman and Michael's blog post was an inspirational resource ([Derek Seaman’s Proxmox vGPU Guide](https://www.derekseaman.com/2023/11/proxmox-ve-8-1-windows-11-vgpu-vt-d-passthrough-with-intel-alder-lake.html) & [vGPU (SR-IOV) with Intel 12th Gen iGPU](https://www.michaelstinkerings.org/gpu-virtualization-with-intel-12th-gen-igpu-uhd-730/)).  
+*Because this is a lazy installer, to reduce variances, this pack also included the archive of strongtz/i915-sriov-dkms driver on the date of 21 Feb 2024.*  
+This installer is tailored for Proxmox 8, aiming to streamline the installation process. 
 
 ## License
 This project is licensed under Apache License, Version 2.0.
