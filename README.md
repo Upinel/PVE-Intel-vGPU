@@ -41,7 +41,7 @@ Before proceeding, ensure the following:
 uname -r
 ```
 
-If your kernel is older than 6.1, refer to **Appendix 1** for instructions on updating it.
+If your kernel is older than 6.1, refer to **[Appendix 1](https://github.com/Upinel/PVE-Intel-vGPU#appedix-1---kernal-lower-than-61)** for instructions on updating it.
 
 ## Proxmox Setup
 ### DKMS Setup
@@ -101,7 +101,7 @@ cat /etc/sysfs.conf
 ```
 
 ### Secure Boot Configuration (Optional)
-If you are using Secure Boot, please follow the **Appedix 2** before next step
+If you are using Secure Boot, please follow the **[Appedix 2](https://github.com/Upinel/PVE-Intel-vGPU#appedix-2---efi--enabled-and-secure-boot-enabled)** before next step
 
 ### Completing  vGPU setup
 Now reboot your Host
@@ -220,7 +220,7 @@ reboot
 uname -r
 ```
    
-**Back to the Guide where you left**
+**[Back to the Guide where you left](https://github.com/Upinel/PVE-Intel-vGPU#secure-boot-configuration-optional)**
 
 ### Appedix 2 - EFI  **Enabled** and Secure Boot **Enabled**
 You need to install mokutill for Secure Boot
@@ -234,7 +234,7 @@ Secure Boot MOK Configuration (Proxmox 8.1+)
 
 Select **Enroll MOK, Continue, Yes, (password), Reboot.**
 
-**Back to the Guide where you left**
+**[Back to the Guide where you left](https://github.com/Upinel/PVE-Intel-vGPU#secure-boot-configuration-optional)**
 
 ## Conclusion
 By completing this guide, you should be able to share your Intel Gen 12 iGPU across multiple VMs for enhanced video processing and virtualized graphical tasks within a Proxmox environment.
