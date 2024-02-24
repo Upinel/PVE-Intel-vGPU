@@ -220,7 +220,7 @@ reboot
 uname -r
 ```
    
-**[Back to the Guide where you left](#secure-boot-configuration-optional)**
+**[Back to the Guide where you left](#proxmox-setup)**
 
 ### Appedix 2 - EFI  **Enabled** and Secure Boot **Enabled**
 You need to install mokutill for Secure Boot
