@@ -8,6 +8,9 @@ Although not suited for gaming due to the limited performance of Intel’s iGPU,
 
 Once you complete this setup, consider enhancing your RDP experience with my project [UpinelBetterRDP](https://github.com/Upinel/BetterRDP), which leverages vGPU capabilities.
 
+### Lazy Option
+If you are install it on a fresh Proxmox System with EFI boot **ON** and Secure Boot **Off**, you may able to use this one-click installer [Upinel/PVE-Intel-vGP-Lazy](https://github.com/Upinel/PVE-Intel-vGPU-Lazy)
+
 ### Disclaimer
 
 This workaround is not officially supported by Proxmox. Use at your own risk.
