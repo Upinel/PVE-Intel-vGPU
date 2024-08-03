@@ -64,18 +64,19 @@ git clone https://github.com/strongtz/i915-sriov-dkms.git
 cd ~/i915-sriov-dkms
 cp -a ~/i915-sriov-dkms/dkms.conf{,.bak}
 sed -i 's/ -j$(nproc)//g' ~/i915-sriov-dkms/dkms.conf
+dkms_ver=$(grep 'PACKAGE_VERSION=' dkms.conf | awk -F '=' '{print $2}' | tr -d '"')
 cat ~/i915-sriov-dkms/dkms.conf
 ```
 3. Install the DKMS module:
 ```bash
 apt install --reinstall dkms -y
 dkms add .
-cd /usr/src/i915-sriov-dkms-$KERNEL
+cd /usr/src/i915-sriov-dkms-*
 dkms status
 ```
 4. Build the i915-sriov-dkms
 ```bash
-dkms install -m i915-sriov-dkms -v $KERNEL -k $(uname -r) --force -j 1
+dkms install -m i915-sriov-dkms -v $dkms_ver -k $(uname -r) --force -j 1
 dkms status
 ```
 
