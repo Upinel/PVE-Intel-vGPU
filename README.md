@@ -63,8 +63,6 @@ cd ~
 git clone https://github.com/strongtz/i915-sriov-dkms.git
 cd ~/i915-sriov-dkms
 cp -a ~/i915-sriov-dkms/dkms.conf{,.bak}
-sed -i 's/"@_PKGBASE@"/"i915-sriov-dkms"/g' ~/i915-sriov-dkms/dkms.conf
-sed -i 's/"@PKGVER@"/"'"$KERNEL"'"/g' ~/i915-sriov-dkms/dkms.conf
 sed -i 's/ -j$(nproc)//g' ~/i915-sriov-dkms/dkms.conf
 cat ~/i915-sriov-dkms/dkms.conf
 ```
