@@ -1,15 +1,17 @@
-# Intel Gen 12 vGPU (SR-IOV) on Proxmox
+# Intel Gen 12/13 vGPU (SR-IOV) on Proxmox VE 8.x / 9.x
 
-This guide is designed to help you virtualize the 12th-generation Intel integrated GPU (iGPU) and share it as a virtual GPU (vGPU) with hardware acceleration and video encoding/decoding capabilities across multiple VMs.
+This guide helps you virtualize 12th/13th-generation Intel integrated GPUs and share them as virtual GPUs (vGPU) with hardware acceleration and video encoding/decoding across up to 7 VMs using SR-IOV technology.
 
 ### Introduction
 
-Although not suited for gaming due to the limited performance of Intel’s iGPU, especially when shared among multiple VMs, this setup excels at video decoding tasks like streaming YouTube and accelerating RDP sessions without burdening the CPU.
+Although not suited for gaming due to the limited performance of Intel's iGPU, especially when shared among multiple VMs, this setup excels at video decoding tasks like streaming YouTube and accelerating RDP sessions without burdening the CPU.
 
-Once you complete this setup, consider enhancing your RDP experience with my project [UpinelBetterRDP](https://github.com/Upinel/BetterRDP), which leverages vGPU capabilities.
+Once you complete this setup, consider enhancing your RDP experience with my project [Upinel/BetterRDP](https://github.com/Upinel/BetterRDP), which leverages vGPU capabilities.
+
+> **⚠️ Proxmox 9.x Note:** If you're on Proxmox VE 9.2+ with kernel 7.0+, the new Intel **Xe** driver has native SR-IOV support for some hardware. See [Intel Xe Driver (Native SR-IOV)](#intel-xe-driver-native-sr-iov) section below.
 
 ### Lazy Option
-If you are install it on a fresh Proxmox System with EFI boot **ON** and Secure Boot **Off**, you may able to use this one-click installer [Upinel/PVE-Intel-vGP-Lazy](https://github.com/Upinel/PVE-Intel-vGPU-Lazy)
+For a fresh Proxmox installation with EFI **ON** and Secure Boot **Off**, use the one-click installer: [Upinel/PVE-Intel-vGPU-Lazy](https://github.com/Upinel/PVE-Intel-vGPU-Lazy)
 
 ### Disclaimer
 
@@ -35,16 +37,35 @@ Before proceeding, ensure the following:
 
 • VT-d (IOMMU) and SR-IOV are enabled in BIOS.
 
-• Proxmox Virtual Environment (VE) version 8.1.4 or newer is **installed with GRUB bootloader**.
+• Proxmox Virtual Environment (VE) version 8.1.4 or newer is installed.
 
-• EFI is **enabled**, and Secure Boot is **disabled**. (Please refer to **Appendix 2** during the guide if your Secure Boot is Enabled)
+• EFI is **enabled**, and Secure Boot is **disabled**. (See Module Signing note below — even with Secure Boot OFF, newer kernels require MOK enrollment.)
 
-• Linux kernel version 6.1 or newer is present. Validate with 
+• Linux kernel version 6.1 or newer. Validate with:
 ```bash
 uname -r
 ```
+If your kernel is older than 6.1, refer to **[Appendix 1](#appendix-1---kernel-lower-than-61)**.
 
-If your kernel is older than 6.1, refer to **[Appendix 1](#appedix-1---kernal-lower-than-61)** for instructions on updating it.
+• **GRUB or systemd-boot**: The guide covers both. For systemd-boot, see the special instructions below.
+
+### ⚠️ Module Signing (Required for ALL Setups on Proxmox 8.2+)
+
+Starting with Proxmox VE 8.2 (kernel 6.8+), **even with Secure Boot disabled**, the kernel enforces module signature verification. DKMS modules like `i915-sriov-dkms` will fail to load with "module verification failed" unless the MOK key is enrolled. This is issue #13 — and it affects everyone, not just Secure Boot users.
+
+**Fix** — do this AFTER building the DKMS module (after step 4 in DKMS Setup):
+```bash
+apt install mokutil -y
+mokutil --import /var/lib/dkms/mok.pub
+```
+Then **reboot**. During boot you'll see the **Perform MOK management** screen:
+1. Select **Enroll MOK**
+2. Select **Continue**
+3. Select **Yes**
+4. Enter the password you set (or just press Enter if none)
+5. Select **Reboot**
+
+The module will now load correctly. See [Troubleshooting](#troubleshooting) if issues persist.
 
 ## Proxmox Setup
 ### DKMS Setup
@@ -89,6 +110,21 @@ update-grub
 update-initramfs -u -k all
 apt install sysfsutils -y
 ```
+
+> **💡 Note on `i915.max_vfs=7`:** On newer kernels (6.8+), you may see `i915: unknown parameter 'max_vfs' ignored` in dmesg. This is harmless — the module still uses the sysfs-based method (see next section). The parameter is included for compatibility with older kernels.
+
+### systemd-boot Setup (Alternative)
+If your Proxmox installation uses systemd-boot instead of GRUB (check with `efibootmgr` or `ls /boot/efi/loader/`):
+
+```bash
+# Edit kernel command line
+echo "intel_iommu=on iommu=pt i915.enable_guc=3 i915.max_vfs=7" > /etc/kernel/cmdline
+proxmox-boot-tool refresh
+update-initramfs -u -k all
+apt install sysfsutils -y
+```
+
+Then reboot for changes to take effect.
 
 ### Create vGPU
 Identify the PCIe bus number of the VGA card, usually **00:02.0**: 
@@ -179,7 +215,16 @@ wmic UserAccount set PasswordExpires=False
 8. In the top of the right pane click on **Add**, then select **PCI Device**.
 9. Select **Raw Device**. Then review all of the PCI devices available. Select one of the sub-function (.1, .2, etc..) graphics controllers (i.e. ANY entry except the 00:02.0). Do **NOT** use the root “0” device, for ANYTHING. I chose **02.1**. Click** Add**. **Do NOT** tick the “All Functions” box. Tick the box next to **Primary GPU**. Click **Add**.
 10. Start the Windows 11 VM and wait a couple of minutes for it to boot and RDP to become active. Note, the Proxmox Windows console will NOT connect since we removed the virtual VGA device. You will see a **Failed to connect to server** message. You can now ONLY access Windows via RDP. 
-11. RDP into the Windows 11 VM. Locate the Intel Graphics driver installer and run it. If all goes well, you will be presented with an **Installation complete!** screen. Reboot. If you run into issues with the Intel installer, skip down to my troubleshooting section below to see if any of those tips help. 
+11. RDP into the Windows 11 VM. Locate the Intel Graphics driver installer and run it. If all goes well, you will be presented with an **Installation complete!** screen. Reboot. If you run into issues with the Intel installer, skip down to my troubleshooting section below to see if any of those tips help.
+
+> **⚠️ Windows 11 24H2 Black Screen Fix:** After installing the Intel GPU driver on Windows 11 24H2, you may experience a black screen when connecting via RDP. This is caused by 24H2's changed display adapter handling. Fix:
+> 1. Before installing the Intel driver, connect via RDP and open **Group Policy Editor** (`gpedit.msc`)
+> 2. Navigate to: **Computer Configuration → Administrative Templates → Windows Components → Remote Desktop Services → Remote Desktop Session Host → Remote Session Environment**
+> 3. Set **"Use hardware graphics adapters for all Remote Desktop Services sessions"** to **Enabled**
+> 4. Run `gpupdate /force` and reboot
+> 5. Now install the Intel driver — RDP should work without black screen
+>
+> If you still get a black screen, connect via Proxmox console (re-add the Display device temporarily), uninstall the Intel driver, apply the GPO fix, then reinstall.
 
 ## Windows 11 vGPU Validation
 1. RDP into Windows and launch **Device Manager**. 
@@ -187,8 +232,81 @@ wmic UserAccount set PasswordExpires=False
 3. Launch **Intel Arc Control**. Click on the **gear icon**, **System Info**, **Hardware**. Verify it shows **Intel Iris Xe**.
 4. Launch **Task Manager**, then watch a YouTube video. Verify the GPU is being used.
 
-## Appedixies
-### Appedix 1 - Kernal lower than 6.1
+## Intel Xe Driver (Native SR-IOV)
+
+As of Proxmox VE 9.2+ (kernel 7.0+), Intel's new **Xe** kernel driver is the successor to i915 and includes **native SR-IOV support** without needing DKMS modules. This is the future of Intel GPU virtualization.
+
+**Current status (June 2026):**
+- ✅ **Panther Lake** (Gen 15): Native SR-IOV works out of the box on Xe driver
+- 🚧 **Meteor Lake / Arrow Lake** (Gen 14): Partial support, YMMV
+- ❌ **Alder Lake / Raptor Lake** (Gen 12/13): Still requires the i915-sriov-dkms approach in this guide
+
+To try the Xe driver on supported hardware:
+```bash
+# Blacklist i915 and enable Xe
+echo "blacklist i915" > /etc/modprobe.d/blacklist-i915.conf
+echo "options xe enable_guc=3" > /etc/modprobe.d/xe.conf
+update-initramfs -u -k all
+reboot
+```
+Then use `lspci | grep VGA` and `dmesg | grep xe` to verify. VFs are managed via sysfs as usual.
+
+## Ubuntu 24.04 LTS VM Notes
+
+If you're passing vGPU to an Ubuntu 24.04 VM instead of Windows:
+- The `i915` driver in Ubuntu 24.04 may not recognize the vGPU properly
+- Install the **same i915-sriov-dkms module on the guest VM** as you did on the host
+- Or use the **Xe driver** on the guest if running kernel 6.12+
+- Check `lspci -k` to see which driver is bound to the VGA device
+- Use `intel_gpu_top` to verify GPU utilization in the guest
+
+## HDMI / Physical Display Output (Passthrough of 00:02.0)
+
+If you want physical HDMI/DisplayPort output from a VM, you need to passthrough the **root function 00:02.0**, not a VF:
+
+```
+⚠️ Passthrough of 00:02.0 means the HOST loses access to the iGPU completely.
+All VFs (00:02.1 through 00:02.7) will also be unavailable.
+This is only suitable for single-VM setups needing physical display output.
+```
+
+1. Add **PCI Device** → **Raw Device** → select `00:02.0`
+2. Tick **All Functions** AND **Primary GPU**
+3. The VM will now drive a physical monitor connected to the HDMI/DP port
+
+## Troubleshooting
+
+### VFs not showing after reboot (`lspci | grep VGA` shows only 00:02.0)
+
+1. **Check kernel cmdline:** `cat /proc/cmdline` — ensure `intel_iommu=on iommu=pt` are present
+2. **Check sysfs:** `cat /etc/sysfs.conf` — should contain the sriov_numvfs line
+3. **Manually trigger VF creation:** `echo 7 > /sys/devices/pci0000:00/0000:00:02.0/sriov_numvfs`
+4. **Check module loaded:** `lsmod | grep i915` — if missing, the DKMS build may have failed
+5. **Check dmesg for errors:** `dmesg | grep -E "i915|DMAR|IOMMU" | tail -20`
+6. **Verify SR-IOV in BIOS:** Some BIOSes have a separate SR-IOV toggle beyond VT-d
+
+### "module verification failed" / DKMS module doesn't load
+
+Follow the [Module Signing](#%EF%B8%8F-module-signing-required-for-all-setups-on-proxmox-82) section above — this is required for ALL Proxmox 8.2+ installs.
+
+### Intel driver installer fails in Windows VM
+
+1. Ensure you're passing a VF (.1 through .7), NOT the root 00:02.0
+2. Try an older Intel driver version — some versions block installation on virtualized GPUs
+3. Run the installer with `-override` flag: `Setup.exe -override`
+4. Extract the .inf files from the installer and install manually via Device Manager
+
+### Only raw device 00:02.0 showing (no VFs in PCI list)
+
+This means SR-IOV Virtual Functions weren't created. Check:
+1. `dmesg | grep -i sriov` — should show "Enabled 7 VFs"
+2. `cat /sys/devices/pci0000:00/0000:00:02.0/sriov_numvfs` — should return `7`
+3. If it returns `0`, manually enable: `echo 7 > /sys/devices/pci0000:00/0000:00:02.0/sriov_numvfs`
+4. If "Permission denied", the i915 module isn't loaded properly — revisit DKMS Setup
+
+## Appendixes
+
+### Appendix 1 - Kernel lower than 6.1
 You can update the PVE kernel to 6.2 5.19 using these commands:
 1.  Disable enterprise repo:
 ```bash
@@ -224,22 +342,24 @@ uname -r
    
 **[Back to the Guide where you left](#proxmox-setup)**
 
-### Appedix 2 - EFI  **Enabled** and Secure Boot **Enabled**
-You need to install mokutill for Secure Boot
+### Appendix 2 - Secure Boot Enabled
+If your system has Secure Boot **enabled**, you need to enroll the MOK key after building the DKMS module:
 ```bash
 apt update && apt install mokutil
 mokutil --import /var/lib/dkms/mok.pub
 ```
-**Reboot Proxmox Host**, monitor the boot process and wait for the **Perform MOK management** window (screenshot below). If you miss the first reboot you will need to re-run the mokutil command and reboot again. The DKMS module will NOT load until you step through this setup. 
+**Reboot Proxmox Host**, monitor the boot process and wait for the **Perform MOK management** window. If you miss the first reboot you will need to re-run the mokutil command and reboot again. The DKMS module will NOT load until you step through this setup.
 
-Secure Boot MOK Configuration (Proxmox 8.1+)
+Select **Enroll MOK, Continue, Yes, (password), Reboot.**
 
-Select **Enroll MOK, Continue, Yes, (password), Reboot.**
+**Note:** Even with Secure Boot *disabled*, Proxmox 8.2+ still requires MOK enrollment. See the [Module Signing](#%EF%B8%8F-module-signing-required-for-all-setups-on-proxmox-82) section above.
 
-**[Back to the Guide where you left](#secure-boot-configuration-optional)**
+**[Back to the Guide where you left](#completing--vgpu-setup)**
 
 ## Conclusion
-By completing this guide, you should be able to share your Intel Gen 12 iGPU across multiple VMs for enhanced video processing and virtualized graphical tasks within a Proxmox environment.
+By completing this guide, you should be able to share your Intel Gen 12/13 iGPU across up to 7 VMs for hardware-accelerated video processing, RDP acceleration, and virtualized graphical tasks within a Proxmox environment.
+
+For the Intel Xe driver (Gen 14/15 native SR-IOV), see the [Intel Xe Driver](#intel-xe-driver-native-sr-iov) section.
 
 
 ## Credits
